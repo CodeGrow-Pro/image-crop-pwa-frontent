@@ -1,16 +1,13 @@
-import { Alert, Autocomplete, Button, Dialog, DialogContent, Grid, TextField, Typography } from '@mui/material'
+import { Alert, Autocomplete, Button, Dialog, DialogContent, Divider, Grid, TextField, Typography } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
 import { Save } from '@mui/icons-material'
 import React, { useEffect, useState } from 'react'
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import config from '../config';
+import TakeImage from '../Pages/takeImage';
 
-
-// const config.HOST = 'http://localhost';
-// const config.PORT = '8000';
-
-export default function CreateReport({open, onClose, refreshContent}) {
+export default function CreateReport({ open, onClose, refreshContent }) {
     const [crops, setCrops] = useState([]);
     const [selectedCrop, setSelectedCrop] = useState(null);
     const [selectedFile, setSelectedFile] = useState(null);
@@ -24,10 +21,10 @@ export default function CreateReport({open, onClose, refreshContent}) {
             headers: {
                 "authorization": localStorage.getItem("token")
             }
-        }).then(({data}) => {
+        }).then(({ data }) => {
             setLoader(false);
             setOffline(false);
-            if(data.success){
+            if (data.success) {
                 setCrops(data.data)
                 localStorage.setItem("crops", JSON.stringify(data.data));
             }
@@ -35,10 +32,10 @@ export default function CreateReport({open, onClose, refreshContent}) {
             setLoader(false);
             setOffline(true);
             let collection = localStorage.getItem("crops");
-            if(collection){
+            if (collection) {
                 setCrops(JSON.parse(collection))
             }
-            
+
         })
     }
 
@@ -49,20 +46,20 @@ export default function CreateReport({open, onClose, refreshContent}) {
 
         axios.post(`${config.HOST}:${config.PORT}/api/reports/generate`, formData, {
             headers: {
-              'Content-Type': 'multipart/form-data',
-              'authorization': localStorage.getItem("token")
+                'Content-Type': 'multipart/form-data',
+                'authorization': localStorage.getItem("token")
             }
-        }).then(({data}) => {
+        }).then(({ data }) => {
             setOffline(false);
             setLoader(false);
             console.log(data);
-            if(data.success){
+            if (data.success) {
                 resetParams();
                 onClose();
                 refreshContent();
                 toast.success("Submitted Successfully")
             }
-            else{
+            else {
                 toast.error(data.message)
             }
         }).catch((err) => {
@@ -73,7 +70,7 @@ export default function CreateReport({open, onClose, refreshContent}) {
             // if(collection){
             //     setCrops(JSON.parse(collection))
             // }
-            
+
         })
     }
 
@@ -83,18 +80,18 @@ export default function CreateReport({open, onClose, refreshContent}) {
 
     const validateFields = () => {
         const errors = {}
-        if(!selectedCrop){
-            errors["crop"] = "Crop cannot be blank"
+        if (!selectedCrop) {
+            errors["crop"] = "Crop is required!"
         }
-        if(selectedFile == null){
-            errors["image"] = "Crop Image cannot be blank"
+        if (selectedFile == null) {
+            errors["image"] = "Crop Image is required!"
         }
         return errors;
     }
 
     const handleSubmit = () => {
         const errors = validateFields();
-        if(Object.keys(errors).length == 0){
+        if (Object.keys(errors).length == 0) {
             sendData();
         }
         setErrors(errors);
@@ -108,7 +105,7 @@ export default function CreateReport({open, onClose, refreshContent}) {
     }
     useEffect(() => {
         resetParams();
-        if(open){
+        if (open) {
             getCrops();
         }
     }, [open])
@@ -118,31 +115,32 @@ export default function CreateReport({open, onClose, refreshContent}) {
             open={open}
             onClose={onClose}
             scroll={"paper"}
-            PaperProps={{ sx: { width: "100%" } }}
+            PaperProps={{ sx: { width: "100%", backdropFilter: 'blur(0.9)' } }}
             maxWidth={"sm"}
         >
-            <DialogContent sx={{p: 0}}>
-                <Grid container sx={{p: 1, backgroundColor: "orange"}}>
-                    <Typography sx={{fontSize: "18px", color: "white"}}>Create Report</Typography>
+            <DialogContent sx={{ p: 0 }}>
+                <Grid container sx={{ p: 1 }}>
+                    <Typography sx={{ fontSize: "18px", color: "black" }}>Create Report</Typography>
                 </Grid>
-                <Grid container justifyContent={"center"} alignItems={"center"} sx={{mt: 2}}>
-                {
-                    offline && 
-                    <Alert
-                        severity="error"
-                        sx={{width: "90%", p: 0, pl: 2, pr: 2}}
-                        action={
-                            <Button size='small' onClick={getCrops}>RETRY</Button>
-                        }
-                    >
-                        Device is in offline mode.
-                    </Alert>
-                }
+                <Divider />
+                <Grid container justifyContent={"center"} alignItems={"center"} sx={{ mt: 2 }}>
+                    {
+                        offline &&
+                        <Alert
+                            // severity="warning"
+                            sx={{ width: "90%", p: 0, pl: 2, pr: 2 }}
+                            action={
+                                <Button size='small' onClick={getCrops}>Please Retry</Button>
+                            }
+                        >
+                            🧐 The device is currently offline. 🧐
+                        </Alert>
+                    }
                 </Grid>
-                
-                <Grid container sx={{p: 2}}>
+
+                <Grid container sx={{ p: 2 }}>
                     <Grid container item sm={4} justifyContent={"center"} alignItems={"center"}>
-                        Crop Type*
+                        Crop Name*
                     </Grid>
                     <Grid container item sm={6}>
                         <Autocomplete
@@ -153,24 +151,24 @@ export default function CreateReport({open, onClose, refreshContent}) {
                             onChange={(e, option) => {
                                 setSelectedCrop(option);
                             }}
-                            getOptionLabel={ (option) => option.name }
+                            getOptionLabel={(option) => option.name}
                             renderInput={(params) => (
                                 <TextField
-                                    sx={{ color: "#455A64"}}
+                                    sx={{ color: "#455A64" }}
                                     {...params}
-                                    label="Select Crop"
+                                    label="Select Crop Name"
                                 />
                             )}
                         />
                         {
-                            errors.crop && 
-                            <Typography variant='p' sx={{color: "red", fontSize: "12px"}}>{errors.crop}</Typography>
+                            errors.crop &&
+                            <Typography variant='p' sx={{ color: "red", fontSize: "12px" }}>{errors.crop}</Typography>
                         }
                     </Grid>
                 </Grid>
-                <Grid container sx={{p: 2}}>
-                    <Grid container item sm={4} justifyContent={"center"} alignItems={"center"}>
-                        Crop Image*
+                <Grid container sx={{ p: 2 }}>
+                    {/* <Grid container item sm={4} justifyContent={"center"} alignItems={"center"}>
+                        Upload Image*
                     </Grid>
                     <Grid container item sm={6}>
                         <TextField
@@ -179,23 +177,31 @@ export default function CreateReport({open, onClose, refreshContent}) {
                             type='file'
                             onChange={handleFileChange}
                         />
-                        {
-                            errors.image && 
-                            <Typography variant='p' sx={{color: "red", fontSize: "12px"}}>{errors.image}</Typography>
-                        }
+                     
                         
-                    </Grid>
+                    </Grid> */}
+                    <TakeImage setSelectedFile={setSelectedFile}/>
+                    {
+                        errors.image &&
+                        <Typography variant='p' sx={{ color: "red", fontSize: "12px" }}>{errors.image}</Typography>
+                    }
                 </Grid>
-                <Grid container sx={{p: 2}} justifyContent={"center"}>
-                    <Button variant='outlined' onClick={onClose}>Cancel</Button>
+                <Grid container sx={{ p: 2 }} justifyContent={"center"}>
+                    <Button variant='contained' style={{ backgroundColor: 'red' }} onClick={onClose}>Cancel</Button>
                     <LoadingButton
                         disabled={offline}
                         loading={loader}
                         loadingPostition="start"
                         startIcon={<Save />}
-                        variant="outlined"
-                        sx={{ml: 2}}
-                        onClick={handleSubmit}
+                        variant='contained'
+                        sx={{ ml: 2 }}
+                        onClick={() => {
+                            setLoader(true)
+                            setTimeout(() => {
+                                handleSubmit()
+                                setLoader(false)
+                            }, 3000)
+                        }}
                     >
                         Submit
                     </LoadingButton>

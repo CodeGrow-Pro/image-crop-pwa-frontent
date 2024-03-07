@@ -10,7 +10,7 @@ function App() {
   return (
     <Grid>
       <MyRoutes>
-        <CustomAppBar />
+        {/* <CustomAppBar /> */}
       </MyRoutes>
       <ToastContainer />
 
