@@ -1,5 +1,5 @@
 const config = {
-    HOST: 'http://localhost',
-    PORT: '8000'
+    HOST: 'https://image-crop-pwa-backend.onrender.com',
+    PORT: ''
 }
 export default config;
