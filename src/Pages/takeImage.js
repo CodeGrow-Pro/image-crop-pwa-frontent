@@ -20,27 +20,41 @@ const TakeImage = (props) => {
     props.setSelectedFile(imageData)
   })
 
-  const startCamera = async () => {
+  const requestCameraPermission = async () => {
     try {
       const permissionStatus = await navigator.permissions.query({ name: 'camera' });
 
       if (permissionStatus.state === 'granted') {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints });
-        webcamRef.current.srcObject = stream;
+        startCamera();
       } else if (permissionStatus.state === 'prompt') {
         // Ask for permission
-        const stream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints });
-        webcamRef.current.srcObject = stream;
+        permissionStatus.onchange = () => {
+          if (permissionStatus.state === 'granted') {
+            startCamera();
+          } else {
+            console.error('Camera access denied by the user.');
+          }
+        };
       } else {
         console.error('Camera access denied by the user.');
       }
+    } catch (error) {
+      console.error('Error checking camera permission:', error);
+    }
+  };
+
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints });
+      webcamRef.current.srcObject = stream;
     } catch (error) {
       console.error('Error accessing camera:', error);
     }
   };
 
+
   useEffect(() => {
-    startCamera()
+    requestCameraPermission()
   }, [])
   return (
     <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column' }}>
