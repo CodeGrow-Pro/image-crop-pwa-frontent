@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Webcam from 'react-webcam'
 import { LoadingButton } from '@mui/lab';
 import convertBlobUrlToFile from '../helper/convertInFIle';
@@ -16,15 +16,28 @@ const TakeImage = (props) => {
   const capture = React.useCallback(async () => {
     const pictureSrc = webcamRef.current.getScreenshot()
     setPicture(pictureSrc)
-    const imageData = await convertBlobUrlToFile(pictureSrc,"image.png")
+    const imageData = await convertBlobUrlToFile(pictureSrc, "image.png")
     props.setSelectedFile(imageData)
   })
+
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints });
+      webcamRef.current.srcObject = stream;
+    } catch (error) {
+      window.alert('Error accessing camera:', error);
+    }
+  };
+
+  useEffect(() => {
+    startCamera()
+  }, [])
   return (
     <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column' }}>
       <h3 className="text-center">
         Capture Image
       </h3>
-      <div style={{ display: 'flex', justifyContent: 'center',margin:'auto auto' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', margin: 'auto auto' }}>
         {picture == '' ? (
           <Webcam
             audio={false}

@@ -39,24 +39,6 @@
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
   <script>
-     document.addEventListener('DOMContentLoaded', () => {
-            const video = document.getElementById('camera');
-
-            // Check if the browser supports WebRTC
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                // Access the user's camera
-                navigator.mediaDevices.getUserMedia({ video: true })
-                    .then((stream) => {
-                        // Display the camera stream in the video element
-                        video.srcObject = stream;
-                    })
-                    .catch((error) => {
-                        console.error('Error accessing camera:', error);
-                    });
-            } else {
-                console.error('WebRTC is not supported in this browser.');
-            }
-        });
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./serviceWorker.js').then((reg) => {
