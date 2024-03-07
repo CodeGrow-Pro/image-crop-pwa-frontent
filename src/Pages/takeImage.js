@@ -22,10 +22,20 @@ const TakeImage = (props) => {
 
   const startCamera = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints });
-      webcamRef.current.srcObject = stream;
+      const permissionStatus = await navigator.permissions.query({ name: 'camera' });
+
+      if (permissionStatus.state === 'granted') {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints });
+        webcamRef.current.srcObject = stream;
+      } else if (permissionStatus.state === 'prompt') {
+        // Ask for permission
+        const stream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints });
+        webcamRef.current.srcObject = stream;
+      } else {
+        console.error('Camera access denied by the user.');
+      }
     } catch (error) {
-      window.alert('Error accessing camera:', error);
+      console.error('Error accessing camera:', error);
     }
   };
 
